@@ -1,4 +1,6 @@
 
+using Microsoft.EntityFrameworkCore;
+using ZooAPI.Application;
 using ZooAPI.Automapper;
 using ZooAPI.Middlewares;
 using ZooAPI.Services;
@@ -11,6 +13,9 @@ namespace ZooAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<DatabaseContext>(options =>
+                options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
@@ -19,7 +24,7 @@ namespace ZooAPI
 
             builder.Services.AddScoped<IAnimalService, AnimalService>();
             builder.Services.AddTransient<AnimalService>();
-            
+
             var app = builder.Build();
 
             app.UseMiddleware<ExceptionMiddleware>();
@@ -33,7 +38,6 @@ namespace ZooAPI
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
-            
 
             app.Run();
         }

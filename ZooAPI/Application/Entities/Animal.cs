@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
-
-namespace ZooAPI.Application.Entities
+﻿namespace ZooAPI.Application.Entities
 {
     public class Animal
     {

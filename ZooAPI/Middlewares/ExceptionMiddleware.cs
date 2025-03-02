@@ -1,10 +1,4 @@
-﻿
-
-
-using System.Net;
-using System.Text.Json;
-
-namespace ZooAPI.Middlewares
+﻿namespace ZooAPI.Middlewares
 {
     public class ExceptionMiddleware
     {

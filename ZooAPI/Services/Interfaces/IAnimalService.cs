@@ -4,9 +4,10 @@ namespace ZooAPI.Services.Interfaces
 {
     public interface IAnimalService
     {
-        IndexAnimalViewModel GetById(int id);
-        void Create(CreateAnimalViewModel viewModel);
-        void EditById(EditAnimalViewModel viewModel, int id);
-        void DeleteById(int id);
+        Task<IndexAnimalViewModel> GetById(int id);
+        Task Create(CreateAnimalViewModel viewModel);
+        Task EditById(EditAnimalViewModel viewModel, int id);
+        Task DeleteById(int id);
+        Task<List<IndexAnimalViewModel>> GetAll();
     }
 }

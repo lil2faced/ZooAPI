@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
+using Microsoft.EntityFrameworkCore;
 using ZooAPI.Application;
 using ZooAPI.Application.Entities;
 using ZooAPI.DTO.AnimalDTO;
@@ -10,67 +10,61 @@ namespace ZooAPI.Services
     public class AnimalService : IAnimalService
     {
         private readonly IMapper _mapper;
-        public AnimalService(IMapper mapper)
+        private readonly DatabaseContext _db;
+        public AnimalService(IMapper mapper, DatabaseContext databaseContext)
         {
-               _mapper = mapper;
+            _mapper = mapper;
+            _db = databaseContext;
         }
-        public void Create(CreateAnimalViewModel viewModel)
+        public async Task Create(CreateAnimalViewModel viewModel)
         {
-            using (DatabaseContext db = new())
+            var temp = await _db.Animals.Where(p => p.Name == viewModel.Name).FirstOrDefaultAsync();
+            if (temp != null)
             {
-                var temp = db.Animals.Where(p => p.Name == viewModel.Name).FirstOrDefault();
-                if (temp != null)
-                {
-                    throw new Exception("Такое животное уже существует");
-                }
-                var res = _mapper.Map<Animal>(viewModel);
-                db.Animals.Update(res);
-                db.SaveChanges();
+                throw new Exception("Такое животное уже существует");
             }
+            var res = _mapper.Map<Animal>(viewModel);
+            _db.Animals.Update(res);
+            await _db.SaveChangesAsync();
         }
 
-        public void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
-            using (DatabaseContext db = new())
+            var res = await _db.Animals.FindAsync(id);
+            if (res == null)
             {
-                var res = db.Animals.Find(id);
-                if (res == null)
-                {
-                    throw new Exception("Not found");
-                }
-                db.Animals.Remove(res);
-                db.SaveChanges();
+                throw new Exception("Not found");
             }
+            _db.Animals.Remove(res);
+            await _db.SaveChangesAsync();
         }
-        public void EditById(EditAnimalViewModel viewModel, int id)
+        public async Task EditById(EditAnimalViewModel viewModel, int id)
         {
-            using (DatabaseContext db = new DatabaseContext())
-            {
-                var res = db.Animals.Find(id);
-                if (res == null)
-                    throw new Exception("Not Found");
-                var temp = db.Animals.Where(p => p.Name == viewModel.Name).FirstOrDefault();
-                if (temp != null)
-                    throw new Exception("Животное с таким именем уже существует");
-                res.Name = viewModel.Name;
-                res.Energy = viewModel.Energy;
-                db.Animals.Update(res);
-                db.SaveChanges();
-            }
-        }
-        public IndexAnimalViewModel GetById(int id)
-        {
-            using (DatabaseContext db = new DatabaseContext())
-            {
-                var res = db.Animals.Find(id);
-                if (res == null)
-                {
-                    throw new Exception("Not Found");
-                }
-                return _mapper.Map<IndexAnimalViewModel>(res);
-            }
+            var res = await _db.Animals.FindAsync(id);
+            if (res == null)
+                throw new Exception("Not Found");
+            var temp = await _db.Animals.Where(p => p.Name == viewModel.Name).FirstOrDefaultAsync();
+            if (temp != null)
+                throw new Exception("Животное с таким именем уже существует");
+            res.Name = viewModel.Name;
+            res.Energy = viewModel.Energy;
+            _db.Animals.Update(res);
+            await _db.SaveChangesAsync();
         }
 
+        public async Task<List<IndexAnimalViewModel>> GetAll()
+        {
+            return await _db.Animals.Select(p => _mapper.Map<IndexAnimalViewModel>(p)).ToListAsync();
+        }
 
+        public async Task<IndexAnimalViewModel> GetById(int id)
+        {
+            var res = await _db.Animals.FindAsync(id);
+            if (res == null)
+            {
+                throw new Exception("Not Found");
+            }
+            return _mapper.Map<IndexAnimalViewModel>(res);
+        }
     }
 }

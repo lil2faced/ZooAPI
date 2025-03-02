@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ZooAPI.DTO.AnimalDTO;
 using ZooAPI.Services;
 
@@ -15,26 +14,31 @@ namespace ZooAPI.Controllers
             _service = animalService;
         }
         [HttpGet("{id}")]
-        public ActionResult<IndexAnimalViewModel> Get(int id)
+        public async Task<ActionResult<IndexAnimalViewModel>> Get(int id)
         {
-            return Ok(_service.GetById(id));
+            return Ok(await _service.GetById(id));
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<IndexAnimalViewModel>>> Get()
+        {
+            return Ok(await _service.GetAll());
         }
         [HttpPost]
-        public ActionResult Post([FromBody] CreateAnimalViewModel viewModel)
+        public async Task<ActionResult> Post([FromBody] CreateAnimalViewModel viewModel)
         {
-            _service.Create(viewModel);
+            await _service.Create(viewModel);
             return Ok();
         }
         [HttpPut("{id}")]
-        public ActionResult Update([FromBody] EditAnimalViewModel viewModel, int id)
+        public async Task<ActionResult> Update([FromBody] EditAnimalViewModel viewModel, int id)
         {
-            _service.EditById(viewModel, id);
+            await _service.EditById(viewModel, id);
             return Ok();
         }
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            _service.DeleteById(id);
+            await _service.DeleteById(id);
             return Ok();
         }
     }

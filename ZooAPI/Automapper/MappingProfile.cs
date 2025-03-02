@@ -8,7 +8,7 @@ namespace ZooAPI.Automapper
     {
         public MappingProfile()
         {
-            CreateMap<Animal,CreateAnimalViewModel>()
+            CreateMap<Animal, CreateAnimalViewModel>()
                 .ReverseMap();
             CreateMap<Animal, EditAnimalViewModel>()
                 .ReverseMap();
